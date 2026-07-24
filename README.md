@@ -1,6 +1,6 @@
 # Rika
 
-[![CI](https://github.com/Orionpluxary/rika-ai-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/Orionpluxary/rika-ai-agent/actions/workflows/ci.yml)
+[![CI](https://github.com/Orionpluxary/rika-app/actions/workflows/ci.yml/badge.svg)](https://github.com/Orionpluxary/rika-app/actions/workflows/ci.yml)
 
 This repository is open source under the MIT License. See [LICENSE](LICENSE) for the full terms.
 
@@ -9,7 +9,7 @@ like a shoujo-manga title page — white space, thin ink linework, hand-drawn
 sparkle motifs, one empty circle reserved for your logo.
 
 ```
-rika-ai-agent/
+rika-app/
 ├── server/        Express API — core logic, memory, activity log, permissions
 ├── client/        React/Vite web interface
 └── package.json   convenience scripts to run both at once
@@ -53,7 +53,7 @@ charging anything. Wire each one to a real integration in
 
 **Requirements:** Node.js 18+ and an API key for the model provider you choose.
 
-1. Open the `rika-ai-agent` folder in VS Code (`File → Open Folder…`).
+1. Open the project folder in VS Code (`File → Open Folder…`).
 2. Open a terminal (`` Ctrl+` ``) and install both halves:
    ```bash
    npm run install:all
@@ -88,7 +88,7 @@ sized and centered.
 ## 4. Pushing to GitHub
 
 ```bash
-cd rika-ai-agent
+cd rika-app
 git init
 git add .
 git commit -m "Rika v2 — initial commit"
