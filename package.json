@@ -1,8 +1,8 @@
 {
-  "name": "rika-ai-agent",
+  "name": "rika",
   "version": "2.0.0",
   "private": true,
-  "description": "Rika — personal AI agent (v2 spec, 2026-07-23). Monorepo: server (Express + Anthropic API) + client (React/Vite).",
+  "description": "Rika — compact chat app (v2 spec, 2026-07-23). Monorepo: server (Express API) + client (React/Vite).",
   "scripts": {
     "install:all": "npm install --prefix server && npm install --prefix client",
     "dev:server": "npm run dev --prefix server",

@@ -1,7 +1,7 @@
 {
   "name": "rika-client",
   "version": "2.0.0",
-  "description": "Rika personal AI agent — web interface",
+  "description": "Rika web interface",
   "type": "module",
   "scripts": {
     "dev": "vite",

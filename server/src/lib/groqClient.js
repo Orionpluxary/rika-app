@@ -1,5 +1,5 @@
-// Groq speaks the OpenAI Chat Completions wire format. We call it directly
-// with fetch — no extra SDK dependency needed on Node 18+.
+// Model API wrapper. We call it directly with fetch so Node 18+ does not
+// need another SDK.
 
 const GROQ_BASE_URL = process.env.GROQ_BASE_URL || "https://api.groq.com/openai/v1";
 const MODEL = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
@@ -9,7 +9,7 @@ async function chatCompletion({ system, messages, tools }) {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     throw new Error(
-      "GROQ_API_KEY is not set. Copy server/.env.example to server/.env and add your free key from console.groq.com/keys."
+      "GROQ_API_KEY is not set. Copy server/.env.example to server/.env and add your key."
     );
   }
 

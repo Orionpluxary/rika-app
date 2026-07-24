@@ -1,11 +1,4 @@
-// Groq doesn't have a built-in hosted web-search tool the way Anthropic
-// does, so Rika gets a small custom one instead. This scrapes DuckDuckGo's
-// no-JS HTML results page — no API key required, good enough for an
-// assistant that needs a quick current-facts check.
-//
-// If you'd rather have higher-quality results, swap this out for a real
-// search API (Tavily, Brave Search, SerpAPI all have free tiers) — just
-// keep the same return shape: { results: [{ title, url, snippet }] }.
+// Lightweight web search via DuckDuckGo HTML results.
 
 function stripTags(html) {
   return html
@@ -23,7 +16,7 @@ async function webSearch(query) {
   const url = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
   const res = await fetch(url, {
     headers: {
-      "User-Agent": "Mozilla/5.0 (compatible; RikaAgent/2.0; +https://github.com/)",
+      "User-Agent": "Mozilla/5.0 (compatible; Rika/2.0; +https://github.com/)",
     },
   });
   if (!res.ok) {

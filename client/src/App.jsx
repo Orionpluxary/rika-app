@@ -15,7 +15,7 @@ export default function App() {
   const [conversationId, setConversationId] = useState(newConversationId());
   const [messages, setMessages] = useState([]);
   const [thinking, setThinking] = useState(false);
-  const [pending, setPending] = useState(null); // ask-first / money confirmation payload
+  const [pending, setPending] = useState(null);
   const [error, setError] = useState(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const scrollRef = useRef(null);
@@ -81,7 +81,7 @@ export default function App() {
           <LogoFrame />
           <div className="text-center">
             <h1 className="font-display text-2xl italic tracking-wide text-ink">Rika</h1>
-            <p className="text-[11px] uppercase tracking-[0.28em] text-muted">personal ai agent</p>
+            <p className="text-[11px] uppercase tracking-[0.28em] text-muted">personal app</p>
           </div>
           <VineRule className="h-3 w-56 text-ink/25" />
         </header>

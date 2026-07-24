@@ -24,7 +24,7 @@ function tierOf(toolName) {
 }
 
 // Pending confirmations, keyed by id. In-memory is fine for a single-user
-// personal agent; swap for a real store if Rika ever serves multiple users.
+// app; swap for a real store if Rika ever serves multiple users.
 const pending = new Map();
 
 function createPending({ toolName, input, summary, tier }) {

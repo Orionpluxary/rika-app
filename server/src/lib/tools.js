@@ -1,9 +1,7 @@
-// Tool definitions in OpenAI/Groq function-calling format:
+// Tool definitions in function-calling format:
 //   { type: "function", function: { name, description, parameters } }
-// Ask-first / money tier tools are *described* here (schema + how to build
-// a one-line summary + a stub effect) but are never executed directly by
-// this file — routes/chat.js's agent loop intercepts them and routes
-// through permissions.js.
+// Ask-first / money tier tools are described here, but the route layer
+// intercepts them and routes through permissions.js.
 
 const memory = require("./memoryStore");
 const { webSearch } = require("./webSearch");
@@ -83,7 +81,6 @@ const ALL_TOOLS = [
   ),
 ];
 
-/** Tools the model can call and get a result back from in the same turn. */
 const AUTONOMOUS_EXECUTORS = {
   web_search: async (input) => {
     try {
@@ -99,7 +96,6 @@ const AUTONOMOUS_EXECUTORS = {
   memory_write: (input) => memory.set(input.key, input.value),
 };
 
-/** Human-readable one-line summary for the ask-first confirmation UI (Section 5). */
 function summarizeAction(toolName, input) {
   switch (toolName) {
     case "memory_forget":
@@ -117,7 +113,6 @@ function summarizeAction(toolName, input) {
   }
 }
 
-/** Runs the actual (stub) effect once a pending action has been confirmed. */
 function performConfirmedAction(toolName, input) {
   switch (toolName) {
     case "memory_forget":
@@ -126,8 +121,6 @@ function performConfirmedAction(toolName, input) {
     case "schedule_event":
     case "delete_file":
     case "make_purchase":
-      // Illustrative stubs — wire these up to real integrations (email API,
-      // calendar API, filesystem, payment provider) as you extend Rika.
       return { ok: true, simulated: true };
     default:
       return { ok: false, reason: "Unknown action." };

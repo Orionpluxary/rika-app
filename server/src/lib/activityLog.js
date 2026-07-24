@@ -1,5 +1,4 @@
-// Plain append-only record of state-changing actions — "what did you do and
-// when," never a place detailed private content lives (Section 8).
+// Plain append-only record of state-changing actions.
 
 const fs = require("fs");
 const path = require("path");

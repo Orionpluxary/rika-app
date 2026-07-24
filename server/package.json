@@ -1,7 +1,7 @@
 {
   "name": "rika-server",
   "version": "2.1.0",
-  "description": "Rika personal AI agent — API server (v2 spec, 2026-07-23), running on Groq's free API",
+  "description": "Rika API server (v2 spec, 2026-07-23)",
   "main": "src/index.js",
   "type": "commonjs",
   "scripts": {
