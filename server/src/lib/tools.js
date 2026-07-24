@@ -74,6 +74,32 @@ const ALL_TOOLS = [
     []
   ),
   tool(
+    "image_read",
+    "Inspect or describe an image provided by the user.",
+    {
+      source: { type: "string", description: "Image source, file path, or URL." },
+      prompt: { type: "string", description: "What to look for in the image." },
+    },
+    ["source"]
+  ),
+  tool(
+    "video_read",
+    "Inspect or summarize a video provided by the user.",
+    {
+      source: { type: "string", description: "Video source, file path, or URL." },
+      prompt: { type: "string", description: "What to look for in the video." },
+    },
+    ["source"]
+  ),
+  tool(
+    "file_read",
+    "Read the contents of a file.",
+    {
+      path: { type: "string", description: "File path." },
+    },
+    ["path"]
+  ),
+  tool(
     "schedule_event",
     "Create or move a calendar event.",
     {
@@ -124,6 +150,12 @@ function summarizeAction(toolName, input) {
       return `Send an email to ${input.to} with subject "${truncate(input.subject, 50)}".`;
     case "camera_capture":
       return `Capture a photo${input.label ? ` for ${input.label}` : ""}.`;
+    case "image_read":
+      return `Read the image at ${input.source}${input.prompt ? ` and ${input.prompt}` : ""}.`;
+    case "video_read":
+      return `Read the video at ${input.source}${input.prompt ? ` and ${input.prompt}` : ""}.`;
+    case "file_read":
+      return `Read file at ${input.path}.`;
     case "schedule_event":
       return `Schedule "${input.title}" for ${input.when}.`;
     case "delete_file":
@@ -142,6 +174,9 @@ function performConfirmedAction(toolName, input) {
     case "send_message":
     case "email_send":
     case "camera_capture":
+    case "image_read":
+    case "video_read":
+    case "file_read":
     case "schedule_event":
     case "delete_file":
     case "make_purchase":

@@ -17,10 +17,13 @@ export default function Sidebar({ onNewConversation, refreshKey }) {
   const [tab, setTab] = useState("memory");
 
   const connections = [
-    { name: "Email", status: "available", detail: "send a message or email with confirmation" },
+    { name: "Email", status: "available", detail: "send an email with confirmation" },
     { name: "Camera", status: "available", detail: "capture a photo with confirmation" },
-    { name: "Calendar", status: "available", detail: "create or move events" },
-    { name: "Files", status: "available", detail: "delete or overwrite files with confirmation" },
+    { name: "Images", status: "available", detail: "read or describe an image with confirmation" },
+    { name: "Video", status: "available", detail: "read or summarize a video with confirmation" },
+    { name: "Calendar", status: "available", detail: "create or move events with confirmation" },
+    { name: "Files", status: "available", detail: "read, delete, or overwrite files with confirmation" },
+    { name: "Messages", status: "available", detail: "send a message on your behalf with confirmation" },
   ];
 
   useEffect(() => {
