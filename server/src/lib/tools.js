@@ -56,6 +56,24 @@ const ALL_TOOLS = [
     ["to", "channel", "body"]
   ),
   tool(
+    "email_send",
+    "Send an email on the user's behalf.",
+    {
+      to: { type: "string", description: "Recipient email address." },
+      subject: { type: "string", description: "Email subject." },
+      body: { type: "string", description: "Email body." },
+    },
+    ["to", "subject", "body"]
+  ),
+  tool(
+    "camera_capture",
+    "Capture a photo from the connected camera.",
+    {
+      label: { type: "string", description: "Optional label for the capture." },
+    },
+    []
+  ),
+  tool(
     "schedule_event",
     "Create or move a calendar event.",
     {
@@ -102,6 +120,10 @@ function summarizeAction(toolName, input) {
       return `Forget the stored fact "${input.key}".`;
     case "send_message":
       return `Send a ${input.channel} to ${input.to}: "${truncate(input.body, 80)}"`;
+    case "email_send":
+      return `Send an email to ${input.to} with subject "${truncate(input.subject, 50)}".`;
+    case "camera_capture":
+      return `Capture a photo${input.label ? ` for ${input.label}` : ""}.`;
     case "schedule_event":
       return `Schedule "${input.title}" for ${input.when}.`;
     case "delete_file":
@@ -118,6 +140,8 @@ function performConfirmedAction(toolName, input) {
     case "memory_forget":
       return memory.forget(input.key);
     case "send_message":
+    case "email_send":
+    case "camera_capture":
     case "schedule_event":
     case "delete_file":
     case "make_purchase":

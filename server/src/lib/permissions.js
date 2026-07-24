@@ -14,6 +14,8 @@ const TOOL_TIERS = {
   memory_write: "autonomous",
   memory_forget: "ask-first", // deletion is user-visible/irreversible enough to confirm
   send_message: "ask-first",
+  email_send: "ask-first",
+  camera_capture: "ask-first",
   schedule_event: "ask-first",
   delete_file: "ask-first",
   make_purchase: "money",

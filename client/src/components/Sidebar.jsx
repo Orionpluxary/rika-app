@@ -16,6 +16,13 @@ export default function Sidebar({ onNewConversation, refreshKey }) {
   const [activity, setActivity] = useState([]);
   const [tab, setTab] = useState("memory");
 
+  const connections = [
+    { name: "Email", status: "available", detail: "send a message or email with confirmation" },
+    { name: "Camera", status: "available", detail: "capture a photo with confirmation" },
+    { name: "Calendar", status: "available", detail: "create or move events" },
+    { name: "Files", status: "available", detail: "delete or overwrite files with confirmation" },
+  ];
+
   useEffect(() => {
     api.getMemory().then((r) => setMemory(r.items)).catch(() => {});
     api.getActivity().then((r) => setActivity(r.items)).catch(() => {});
@@ -42,7 +49,7 @@ export default function Sidebar({ onNewConversation, refreshKey }) {
       </div>
 
       <div className="flex gap-4 px-5 pt-4 text-[11px] uppercase tracking-[0.2em]">
-        {["memory", "activity"].map((t) => (
+        {["memory", "activity", "connections"].map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -93,6 +100,26 @@ export default function Sidebar({ onNewConversation, refreshKey }) {
                   </div>
                   <div className="text-muted">{item.summary}</div>
                   <div className="mt-1 text-[10px] text-muted/70">{new Date(item.timestamp).toLocaleString()}</div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {tab === "connections" && (
+          <div className="space-y-3">
+            <SectionLabel>available connections</SectionLabel>
+            <p className="text-[13px] text-muted">Rika keeps these task-focused and confirmation-based.</p>
+            <ul className="space-y-2">
+              {connections.map((item) => (
+                <li key={item.name} className="rounded-lg border border-ink/10 bg-white px-3 py-2 text-[12.5px]">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-medium text-ink-soft">{item.name}</span>
+                    <span className="rounded-full border border-ink/15 px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted">
+                      {item.status}
+                    </span>
+                  </div>
+                  <div className="mt-1 text-muted">{item.detail}</div>
                 </li>
               ))}
             </ul>
