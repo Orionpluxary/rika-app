@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-paper text-ink font-body antialiased;
+  background-image: radial-gradient(circle at 1px 1px, rgba(27, 27, 29, 0.045) 1px, transparent 0);
+  background-size: 22px 22px;
+}
+
+::selection {
+  background: #f7d3da;
+}
+
+/* thin custom scrollbar to keep the hairline-everywhere feel */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d9d5da transparent;
+}
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-thumb {
+  background: #d9d5da;
+  border-radius: 999px;
+}
+
+.hairline-rule {
+  background-image: linear-gradient(
+    to right,
+    transparent,
+    rgba(27, 27, 29, 0.28) 15%,
+    rgba(27, 27, 29, 0.28) 85%,
+    transparent
+  );
+  height: 1px;
+}
