@@ -15,6 +15,8 @@ export default function Sidebar({ onNewConversation, refreshKey }) {
   const [memory, setMemory] = useState([]);
   const [activity, setActivity] = useState([]);
   const [tab, setTab] = useState("memory");
+  const [selectedConnection, setSelectedConnection] = useState("Email");
+  const [selectedDevice, setSelectedDevice] = useState("pc");
 
   const connections = [
     { name: "Email", status: "available", detail: "send an email with confirmation" },
@@ -24,7 +26,50 @@ export default function Sidebar({ onNewConversation, refreshKey }) {
     { name: "Calendar", status: "available", detail: "create or move events with confirmation" },
     { name: "Files", status: "available", detail: "read, delete, or overwrite files with confirmation" },
     { name: "Messages", status: "available", detail: "send a message on your behalf with confirmation" },
+    { name: "Contacts", status: "available", detail: "read or update contacts with confirmation" },
+    { name: "Location", status: "available", detail: "check or share location with confirmation" },
+    { name: "Microphone", status: "available", detail: "record audio with confirmation" },
+    { name: "Downloads", status: "available", detail: "save or fetch files with confirmation" },
   ];
+
+  const devicePermissions = {
+    pc: {
+      label: "PC",
+      note: "Best for files, browser tasks, and long responses.",
+      granted: ["Email", "Images", "Video", "Calendar", "Files", "Messages", "Microphone", "Downloads"],
+      ask: ["Camera", "Contacts", "Location"],
+      blocked: ["Payments"],
+    },
+    mobile: {
+      label: "Mobile",
+      note: "Best for camera, contacts, and location.",
+      granted: ["Email", "Camera", "Images", "Video", "Calendar", "Messages", "Contacts", "Location", "Microphone"],
+      ask: ["Files", "Downloads"],
+      blocked: ["Payments"],
+    },
+    tablet: {
+      label: "Tablet",
+      note: "Balanced access with a lighter file surface.",
+      granted: ["Email", "Camera", "Images", "Video", "Calendar", "Messages", "Contacts"],
+      ask: ["Files", "Location", "Microphone", "Downloads"],
+      blocked: ["Payments"],
+    },
+    other: {
+      label: "Other",
+      note: "Custom or limited permissions depending on the device.",
+      granted: ["Email", "Images", "Video", "Messages"],
+      ask: ["Camera", "Calendar", "Contacts", "Location", "Files", "Microphone", "Downloads"],
+      blocked: ["Payments"],
+    },
+  };
+
+  const activeDevice = devicePermissions[selectedDevice];
+
+  function permissionFor(connectionName) {
+    if (activeDevice.granted.includes(connectionName)) return "granted";
+    if (activeDevice.ask.includes(connectionName)) return "ask";
+    return "blocked";
+  }
 
   useEffect(() => {
     api.getMemory().then((r) => setMemory(r.items)).catch(() => {});
@@ -111,21 +156,81 @@ export default function Sidebar({ onNewConversation, refreshKey }) {
 
         {tab === "connections" && (
           <div className="space-y-3">
-            <SectionLabel>available connections</SectionLabel>
-            <p className="text-[13px] text-muted">Rika keeps these task-focused and confirmation-based.</p>
+            <SectionLabel>permission center</SectionLabel>
+            <p className="text-[13px] text-muted">Tap a connector to highlight it, then pick a device to see what is granted or asks first.</p>
+
+            <div className="grid grid-cols-2 gap-2">
+              {Object.entries(devicePermissions).map(([key, device]) => (
+                <button
+                  key={key}
+                  onClick={() => setSelectedDevice(key)}
+                  className={`rounded-lg border px-3 py-2 text-left text-[12px] transition ${
+                    selectedDevice === key
+                      ? "border-ink bg-white text-ink shadow-hairline"
+                      : "border-ink/10 bg-white/70 text-muted hover:border-ink/20 hover:text-ink-soft"
+                  }`}
+                  aria-pressed={selectedDevice === key}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-medium text-ink-soft">{device.label}</span>
+                    <span className="text-[10px] uppercase tracking-wide text-muted">{key}</span>
+                  </div>
+                  <div className="mt-1 text-[11px] text-muted">{device.note}</div>
+                </button>
+              ))}
+            </div>
+
+            <div className="rounded-xl border border-ink/10 bg-white px-3 py-2 text-[12px]">
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-medium text-ink-soft">{activeDevice.label} permissions</span>
+                <span className="rounded-full border border-ink/15 px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted">
+                  {selectedDevice}
+                </span>
+              </div>
+              <div className="mt-1 text-[11px] text-muted">{activeDevice.note}</div>
+            </div>
+
             <ul className="space-y-2">
               {connections.map((item) => (
-                <li key={item.name} className="rounded-lg border border-ink/10 bg-white px-3 py-2 text-[12.5px]">
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="font-medium text-ink-soft">{item.name}</span>
-                    <span className="rounded-full border border-ink/15 px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted">
-                      {item.status}
-                    </span>
-                  </div>
-                  <div className="mt-1 text-muted">{item.detail}</div>
+                <li key={item.name}>
+                  <button
+                    onClick={() => setSelectedConnection(item.name)}
+                    className={`w-full rounded-lg border px-3 py-2 text-left text-[12.5px] transition ${
+                      selectedConnection === item.name
+                        ? "border-ink bg-white shadow-hairline"
+                        : "border-ink/10 bg-white/80 hover:border-ink/20 hover:bg-white"
+                    }`}
+                    aria-pressed={selectedConnection === item.name}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="font-medium text-ink-soft">{item.name}</span>
+                      <span
+                        className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide ${
+                          permissionFor(item.name) === "granted"
+                            ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                            : permissionFor(item.name) === "ask"
+                              ? "border-amber-200 bg-amber-50 text-amber-700"
+                              : "border-rose-200 bg-rose-50 text-rose-700"
+                        }`}
+                      >
+                        {permissionFor(item.name)}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-muted">{item.detail}</div>
+                  </button>
                 </li>
               ))}
             </ul>
+
+            <div className="rounded-xl border border-ink/10 bg-white px-3 py-2 text-[12px]">
+              <div className="flex items-center justify-between gap-3">
+                <span className="font-medium text-ink-soft">Selected connector</span>
+                <span className="text-[10px] uppercase tracking-wide text-muted">{selectedConnection}</span>
+              </div>
+              <div className="mt-1 text-muted">
+                {connections.find((item) => item.name === selectedConnection)?.detail}
+              </div>
+            </div>
           </div>
         )}
       </div>
