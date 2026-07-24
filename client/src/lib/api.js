@@ -15,6 +15,7 @@ async function request(path, options) {
 export const api = {
   sendMessage: (conversationId, message) =>
     request("/chat", { method: "POST", body: JSON.stringify({ conversationId, message }) }),
+  getConversation: (conversationId) => request(`/chat/${encodeURIComponent(conversationId)}`),
   confirm: (pendingId, approve) =>
     request("/confirm", { method: "POST", body: JSON.stringify({ pendingId, approve }) }),
   getMemory: () => request("/state/memory"),

@@ -7,12 +7,21 @@ import ConfirmModal from "./components/ConfirmModal.jsx";
 import { Sparkle, VineRule } from "./components/SparkleDecor.jsx";
 import { api } from "./lib/api.js";
 
+const STORAGE_KEY = "rika.conversationId";
+
 function newConversationId() {
   return crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`;
 }
 
+function toUiMessage(message) {
+  if (!message || typeof message !== "object") return null;
+  const text = typeof message.content === "string" ? message.content : typeof message.text === "string" ? message.text : "";
+  if (!text) return null;
+  return { role: message.role, text };
+}
+
 export default function App() {
-  const [conversationId, setConversationId] = useState(newConversationId());
+  const [conversationId, setConversationId] = useState(() => localStorage.getItem(STORAGE_KEY) || newConversationId());
   const [messages, setMessages] = useState([]);
   const [thinking, setThinking] = useState(false);
   const [pending, setPending] = useState(null);
@@ -24,11 +33,41 @@ export default function App() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, thinking, pending]);
 
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, conversationId);
+    let cancelled = false;
+
+    async function loadConversation() {
+      setThinking(true);
+      setError(null);
+      setPending(null);
+      try {
+        const result = await api.getConversation(conversationId);
+        if (cancelled) return;
+        setMessages((result.messages || []).map(toUiMessage).filter(Boolean));
+      } catch (err) {
+        if (cancelled) return;
+        setMessages([]);
+        setError(err.message);
+      } finally {
+        if (!cancelled) setThinking(false);
+      }
+    }
+
+    loadConversation();
+    return () => {
+      cancelled = true;
+    };
+  }, [conversationId]);
+
   function startNewConversation() {
-    setConversationId(newConversationId());
+    const nextId = newConversationId();
+    localStorage.setItem(STORAGE_KEY, nextId);
+    setConversationId(nextId);
     setMessages([]);
     setPending(null);
     setError(null);
+    setThinking(false);
   }
 
   async function handleSend(text) {

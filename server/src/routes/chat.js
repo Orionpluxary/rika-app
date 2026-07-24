@@ -19,4 +19,15 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/:conversationId", (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const messages = require("../lib/conversationStore").getMessages(conversationId);
+    res.json({ conversationId, messages });
+  } catch (err) {
+    console.error("[/api/chat/:conversationId] error:", err);
+    res.status(500).json({ error: "Rika hit an internal error.", detail: String(err.message || err) });
+  }
+});
+
 module.exports = router;
