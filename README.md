@@ -1,5 +1,9 @@
 # Rika — Personal AI Agent
 
+[![CI](https://github.com/Orionpluxary/rika-ai-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/Orionpluxary/rika-ai-agent/actions/workflows/ci.yml)
+
+This repository is open source under the MIT License. See [LICENSE](LICENSE) for the full terms.
+
 A working implementation of the **Rika v2 (2026-07-23) agent spec**: an
 Express API server that talks to **Groq's free API** (OpenAI-compatible
 tool calling, no paid key needed) and a React/Vite chat interface styled
@@ -147,3 +151,9 @@ Zen Maru Gothic for warmth and readability. The only color beyond ink and
 paper is a whisper of blush pink on the user's own chat bubbles and hover
 states — deliberately restrained so the black linework stays the thing you
 notice.
+
+## 8. Project Health
+
+- CI runs on every push and pull request to verify the client build and server syntax.
+- The MIT license allows reuse and modification while keeping the required notice intact.
+- `server/.env` stays ignored so secrets do not leave your machine.
