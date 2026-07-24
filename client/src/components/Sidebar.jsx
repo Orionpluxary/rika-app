@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { api } from "../lib/api.js";
 import { VineRule, SmallSpark } from "./SparkleDecor.jsx";
 
@@ -17,20 +17,27 @@ export default function Sidebar({ onNewConversation, refreshKey }) {
   const [tab, setTab] = useState("memory");
   const [selectedConnection, setSelectedConnection] = useState("Email");
   const [selectedDevice, setSelectedDevice] = useState("pc");
+  const [statuses, setStatuses] = useState({});
+  const fileInputRef = useRef(null);
 
-  const connections = [
-    { name: "Email", status: "available", detail: "send an email with confirmation" },
-    { name: "Camera", status: "available", detail: "capture a photo with confirmation" },
-    { name: "Images", status: "available", detail: "read or describe an image with confirmation" },
-    { name: "Video", status: "available", detail: "read or summarize a video with confirmation" },
-    { name: "Calendar", status: "available", detail: "create or move events with confirmation" },
-    { name: "Files", status: "available", detail: "read, delete, or overwrite files with confirmation" },
-    { name: "Messages", status: "available", detail: "send a message on your behalf with confirmation" },
-    { name: "Contacts", status: "available", detail: "read or update contacts with confirmation" },
-    { name: "Location", status: "available", detail: "check or share location with confirmation" },
-    { name: "Microphone", status: "available", detail: "record audio with confirmation" },
-    { name: "Downloads", status: "available", detail: "save or fetch files with confirmation" },
-  ];
+  const liveConnections = useMemo(
+    () => [
+      { name: "Email", detail: "send an email with confirmation", kind: "account" },
+      { name: "Camera", detail: "capture a photo with confirmation", kind: "camera" },
+      { name: "Images", detail: "read or describe an image with confirmation", kind: "file" },
+      { name: "Video", detail: "read or summarize a video with confirmation", kind: "file" },
+      { name: "Calendar", detail: "create or move events with confirmation", kind: "account" },
+      { name: "Files", detail: "read, delete, or overwrite files with confirmation", kind: "file" },
+      { name: "Messages", detail: "send a message on your behalf with confirmation", kind: "account" },
+      { name: "Contacts", detail: "read or update contacts with confirmation", kind: "device" },
+      { name: "Location", detail: "check or share location with confirmation", kind: "device" },
+      { name: "Microphone", detail: "record audio with confirmation", kind: "microphone" },
+      { name: "Downloads", detail: "save or fetch files with confirmation", kind: "file" },
+    ],
+    []
+  );
+
+  const connections = liveConnections;
 
   const devicePermissions = {
     pc: {
@@ -66,9 +73,72 @@ export default function Sidebar({ onNewConversation, refreshKey }) {
   const activeDevice = devicePermissions[selectedDevice];
 
   function permissionFor(connectionName) {
-    if (activeDevice.granted.includes(connectionName)) return "granted";
-    if (activeDevice.ask.includes(connectionName)) return "ask";
-    return "blocked";
+    if (statuses[connectionName]) return statuses[connectionName];
+    if (activeDevice.granted.includes(connectionName)) return "ready";
+    if (activeDevice.ask.includes(connectionName)) return "needs permission";
+    return "limited";
+  }
+
+  function updateStatus(name, status) {
+    setStatuses((current) => ({ ...current, [name]: status }));
+  }
+
+  async function requestCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      stream.getTracks().forEach((track) => track.stop());
+      updateStatus("Camera", "connected");
+    } catch {
+      updateStatus("Camera", "blocked");
+    }
+  }
+
+  async function requestMicrophone() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach((track) => track.stop());
+      updateStatus("Microphone", "connected");
+    } catch {
+      updateStatus("Microphone", "blocked");
+    }
+  }
+
+  async function requestLocation() {
+    if (!navigator.geolocation) {
+      updateStatus("Location", "unavailable");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      () => updateStatus("Location", "connected"),
+      () => updateStatus("Location", "blocked"),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
+
+  function requestFile(kind) {
+    if (!fileInputRef.current) return;
+    fileInputRef.current.accept = kind === "image" ? "image/*" : kind === "video" ? "video/*" : "*/*";
+    fileInputRef.current.click();
+  }
+
+  async function handleConnectionClick(item) {
+    setSelectedConnection(item.name);
+    if (item.name === "Camera") return requestCamera();
+    if (item.name === "Microphone") return requestMicrophone();
+    if (item.name === "Location") return requestLocation();
+    if (item.name === "Images") return requestFile("image");
+    if (item.name === "Video") return requestFile("video");
+    if (item.name === "Files") return requestFile("file");
+    if (item.name === "Downloads") return requestFile("file");
+    updateStatus(item.name, "connect account");
+  }
+
+  function handleFilePick(event) {
+    const files = Array.from(event.target.files || []);
+    if (files.length > 0) {
+      updateStatus(selectedConnection, "connected");
+    }
+    event.target.value = "";
   }
 
   useEffect(() => {
@@ -157,7 +227,7 @@ export default function Sidebar({ onNewConversation, refreshKey }) {
         {tab === "connections" && (
           <div className="space-y-3">
             <SectionLabel>permission center</SectionLabel>
-            <p className="text-[13px] text-muted">Tap a connector to highlight it, then pick a device to see what is granted or asks first.</p>
+            <p className="text-[13px] text-muted">Tap a connector to highlight it, then request access. Real browser prompts work for camera, mic, location, and files.</p>
 
             <div className="grid grid-cols-2 gap-2">
               {Object.entries(devicePermissions).map(([key, device]) => (
@@ -194,7 +264,7 @@ export default function Sidebar({ onNewConversation, refreshKey }) {
               {connections.map((item) => (
                 <li key={item.name}>
                   <button
-                    onClick={() => setSelectedConnection(item.name)}
+                    onClick={() => handleConnectionClick(item)}
                     className={`w-full rounded-lg border px-3 py-2 text-left text-[12.5px] transition ${
                       selectedConnection === item.name
                         ? "border-ink bg-white shadow-hairline"
@@ -206,17 +276,28 @@ export default function Sidebar({ onNewConversation, refreshKey }) {
                       <span className="font-medium text-ink-soft">{item.name}</span>
                       <span
                         className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide ${
-                          permissionFor(item.name) === "granted"
+                          permissionFor(item.name) === "connected"
                             ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-                            : permissionFor(item.name) === "ask"
-                              ? "border-amber-200 bg-amber-50 text-amber-700"
-                              : "border-rose-200 bg-rose-50 text-rose-700"
+                            : permissionFor(item.name) === "connect account"
+                              ? "border-sky-200 bg-sky-50 text-sky-700"
+                              : permissionFor(item.name) === "needs permission"
+                                ? "border-amber-200 bg-amber-50 text-amber-700"
+                                : permissionFor(item.name) === "blocked"
+                                  ? "border-rose-200 bg-rose-50 text-rose-700"
+                                  : "border-stone-200 bg-stone-50 text-stone-700"
                         }`}
                       >
                         {permissionFor(item.name)}
                       </span>
                     </div>
                     <div className="mt-1 text-muted">{item.detail}</div>
+                    {item.kind === "camera" || item.kind === "microphone" || item.kind === "device" || item.kind === "file" ? (
+                      <div className="mt-2 text-[11px] text-muted">
+                        {selectedConnection === item.name ? "Click to ask the browser for access." : "Can request access directly."}
+                      </div>
+                    ) : (
+                      <div className="mt-2 text-[11px] text-muted">Needs a connected account or provider integration.</div>
+                    )}
                   </button>
                 </li>
               ))}
@@ -231,6 +312,8 @@ export default function Sidebar({ onNewConversation, refreshKey }) {
                 {connections.find((item) => item.name === selectedConnection)?.detail}
               </div>
             </div>
+
+            <input ref={fileInputRef} type="file" className="hidden" onChange={handleFilePick} />
           </div>
         )}
       </div>
